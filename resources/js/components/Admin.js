@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Admin = ({ tenants, formUser, onChange, onSubmit, resetUserForm, loadUserForm }) => {
+const Admin = ({ tenants, formUser, onChange, onSubmit, deleteUser, resetUserForm, loadUserForm }) => {
     const [showForm, setShowForm] = useState(false);
     const switchForm = () => { setShowForm(!showForm) }
     const resetForm = () => {
@@ -57,7 +57,7 @@ const Admin = ({ tenants, formUser, onChange, onSubmit, resetUserForm, loadUserF
                 </form>
             }
             {!showForm &&
-                <button className='btn btn-success mb-2' onClick={switchForm}>NUEVO</button>
+                <button className='btn btn-success mb-2' onClick={switchForm}>NUEVO INQUILINO</button>
             }
             <div style={{ 'border': 'solid 2px #ddd', 'borderRadius': '10px', 'padding': '10px' }}>
                 <h2>INQUILINOS</h2>
@@ -78,7 +78,7 @@ const Admin = ({ tenants, formUser, onChange, onSubmit, resetUserForm, loadUserF
                                 <td>{tenant.email}</td>
                                 <td>
                                     <button className='btn btn-warning mr-1' onClick={() => { loadForm(tenant) }}>EDITAR</button>
-                                    <button className='btn btn-danger'>ELIMINAR</button>
+                                    <button className='btn btn-danger' onClick={() => { deleteUser(tenant.id) }}>ELIMINAR</button>
                                 </td>
                             </tr>
                         ))}

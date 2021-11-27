@@ -7,6 +7,7 @@ export default class Home extends Component {
         super(props)
         this.state = {
             user: {},
+            apiURL: 'http://localhost:8000/api',
             tenants: [],
             error: null,
             formUser: { id: -1, name: '', email: '', password: '' }
@@ -14,6 +15,7 @@ export default class Home extends Component {
         this.loadTenants = this.loadTenants.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.deleteUser = this.deleteUser.bind(this);
         this.resetUserForm = this.resetUserForm.bind(this);
         this.loadUserForm = this.loadUserForm.bind(this);
     }
@@ -23,7 +25,7 @@ export default class Home extends Component {
     }
     async loadTenants() {
         try {
-            let res = await fetch('http://localhost:8000/api/tenants');
+            let res = await fetch(`${this.state.apiURL}/tenants`);
             let data = await res.json();
             this.setState({
                 tenants: data
@@ -55,17 +57,34 @@ export default class Home extends Component {
                 body: JSON.stringify(this.state.formUser)
             }
             if (this.state.formUser.id < 0) {
-                await fetch('http://localhost:8000/api/tenants', config);
+                await fetch(`${this.state.apiURL}/tenants`, config);
             } else {
                 config.method = 'PUT';
-                await fetch(`http://localhost:8000/api/tenants/${this.state.formUser.id}`, config);
+                await fetch(`${this.state.apiURL}/tenants/${this.state.formUser.id}`, config);
             }
-            let res = await fetch('http://localhost:8000/api/tenants');
+            let res = await fetch(`${this.state.apiURL}/tenants`);
             let data = await res.json();
             this.setState({
                 tenants: data
             })
             this.resetUserForm();
+        } catch (error) {
+            this.setState({
+                error: error
+            })
+        }
+    }
+    async deleteUser(id) {
+        try {
+            let config = {
+                method: 'DELETE',
+            }
+            await fetch(`${this.state.apiURL}/tenants/${id}`, config);
+            let res = await fetch(`${this.state.apiURL}/tenants`);
+            let data = await res.json();
+            this.setState({
+                tenants: data
+            })
         } catch (error) {
             this.setState({
                 error: error
@@ -86,14 +105,18 @@ export default class Home extends Component {
                     <div className="col-md-8">
                         <h1>Bienvenido {logged.name}</h1>
                         <hr />
-                        <Admin
-                            tenants={this.state.tenants}
-                            formUser={this.state.formUser}
-                            onChange={this.handleChange}
-                            onSubmit={this.handleSubmit}
-                            resetUserForm={this.resetUserForm}
-                            loadUserForm={this.loadUserForm}
-                        />
+                        {logged.administrator == 1 &&
+                            <Admin
+                                tenants={this.state.tenants}
+                                formUser={this.state.formUser}
+                                onChange={this.handleChange}
+                                onSubmit={this.handleSubmit}
+                                deleteUser={this.deleteUser}
+                                resetUserForm={this.resetUserForm}
+                                loadUserForm={this.loadUserForm}
+                            />
+                        }
+
                     </div>
                 </div>
             </div>

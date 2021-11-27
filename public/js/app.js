@@ -2166,6 +2166,7 @@ var Admin = function Admin(_ref) {
       formUser = _ref.formUser,
       onChange = _ref.onChange,
       onSubmit = _ref.onSubmit,
+      deleteUser = _ref.deleteUser,
       resetUserForm = _ref.resetUserForm,
       loadUserForm = _ref.loadUserForm;
 
@@ -2278,7 +2279,7 @@ var Admin = function Admin(_ref) {
     }), !showForm && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
       className: "btn btn-success mb-2",
       onClick: switchForm,
-      children: "NUEVO"
+      children: "NUEVO INQUILINO"
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
       style: {
         'border': 'solid 2px #ddd',
@@ -2319,6 +2320,9 @@ var Admin = function Admin(_ref) {
                   children: "EDITAR"
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
                   className: "btn btn-danger",
+                  onClick: function onClick() {
+                    deleteUser(tenant.id);
+                  },
                   children: "ELIMINAR"
                 })]
               })]
@@ -2404,6 +2408,7 @@ var Home = /*#__PURE__*/function (_Component) {
     _this = _super.call(this, props);
     _this.state = {
       user: {},
+      apiURL: 'http://localhost:8000/api',
       tenants: [],
       error: null,
       formUser: {
@@ -2416,6 +2421,7 @@ var Home = /*#__PURE__*/function (_Component) {
     _this.loadTenants = _this.loadTenants.bind(_assertThisInitialized(_this));
     _this.handleChange = _this.handleChange.bind(_assertThisInitialized(_this));
     _this.handleSubmit = _this.handleSubmit.bind(_assertThisInitialized(_this));
+    _this.deleteUser = _this.deleteUser.bind(_assertThisInitialized(_this));
     _this.resetUserForm = _this.resetUserForm.bind(_assertThisInitialized(_this));
     _this.loadUserForm = _this.loadUserForm.bind(_assertThisInitialized(_this));
     return _this;
@@ -2456,7 +2462,7 @@ var Home = /*#__PURE__*/function (_Component) {
               case 0:
                 _context2.prev = 0;
                 _context2.next = 3;
-                return fetch('http://localhost:8000/api/tenants');
+                return fetch("".concat(this.state.apiURL, "/tenants"));
 
               case 3:
                 res = _context2.sent;
@@ -2525,7 +2531,7 @@ var Home = /*#__PURE__*/function (_Component) {
                 }
 
                 _context3.next = 6;
-                return fetch('http://localhost:8000/api/tenants', config);
+                return fetch("".concat(this.state.apiURL, "/tenants"), config);
 
               case 6:
                 _context3.next = 11;
@@ -2534,11 +2540,11 @@ var Home = /*#__PURE__*/function (_Component) {
               case 8:
                 config.method = 'PUT';
                 _context3.next = 11;
-                return fetch("http://localhost:8000/api/tenants/".concat(this.state.formUser.id), config);
+                return fetch("".concat(this.state.apiURL, "/tenants/").concat(this.state.formUser.id), config);
 
               case 11:
                 _context3.next = 13;
-                return fetch('http://localhost:8000/api/tenants');
+                return fetch("".concat(this.state.apiURL, "/tenants"));
 
               case 13:
                 res = _context3.sent;
@@ -2576,6 +2582,60 @@ var Home = /*#__PURE__*/function (_Component) {
       return handleSubmit;
     }()
   }, {
+    key: "deleteUser",
+    value: function () {
+      var _deleteUser = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4(id) {
+        var config, res, data;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.prev = 0;
+                config = {
+                  method: 'DELETE'
+                };
+                _context4.next = 4;
+                return fetch("".concat(this.state.apiURL, "/tenants/").concat(id), config);
+
+              case 4:
+                _context4.next = 6;
+                return fetch("".concat(this.state.apiURL, "/tenants"));
+
+              case 6:
+                res = _context4.sent;
+                _context4.next = 9;
+                return res.json();
+
+              case 9:
+                data = _context4.sent;
+                this.setState({
+                  tenants: data
+                });
+                _context4.next = 16;
+                break;
+
+              case 13:
+                _context4.prev = 13;
+                _context4.t0 = _context4["catch"](0);
+                this.setState({
+                  error: _context4.t0
+                });
+
+              case 16:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this, [[0, 13]]);
+      }));
+
+      function deleteUser(_x2) {
+        return _deleteUser.apply(this, arguments);
+      }
+
+      return deleteUser;
+    }()
+  }, {
     key: "resetUserForm",
     value: function resetUserForm() {
       this.setState({
@@ -2610,11 +2670,12 @@ var Home = /*#__PURE__*/function (_Component) {
             className: "col-md-8",
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("h1", {
               children: ["Bienvenido ", logged.name]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("hr", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_Admin__WEBPACK_IMPORTED_MODULE_3__["default"], {
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("hr", {}), logged.administrator == 1 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_Admin__WEBPACK_IMPORTED_MODULE_3__["default"], {
               tenants: this.state.tenants,
               formUser: this.state.formUser,
               onChange: this.handleChange,
               onSubmit: this.handleSubmit,
+              deleteUser: this.deleteUser,
               resetUserForm: this.resetUserForm,
               loadUserForm: this.loadUserForm
             })]
