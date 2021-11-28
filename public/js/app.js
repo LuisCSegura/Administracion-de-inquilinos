@@ -2168,7 +2168,8 @@ var Admin = function Admin(_ref) {
       onSubmit = _ref.onSubmit,
       deleteUser = _ref.deleteUser,
       resetUserForm = _ref.resetUserForm,
-      loadUserForm = _ref.loadUserForm;
+      loadUserForm = _ref.loadUserForm,
+      imageURL = _ref.imageURL;
 
   var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
       _useState2 = _slicedToArray(_useState, 2),
@@ -2353,9 +2354,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
-/* harmony import */ var _Admin__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Admin */ "./resources/js/components/Admin.js");
-/* harmony import */ var _Tenant__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tenant */ "./resources/js/components/Tenant.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _Admin__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Admin */ "./resources/js/components/Admin.js");
+/* harmony import */ var _Tenant__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tenant */ "./resources/js/components/Tenant.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
@@ -2397,6 +2400,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 
 
+
 var Home = /*#__PURE__*/function (_Component) {
   _inherits(Home, _Component);
 
@@ -2411,7 +2415,9 @@ var Home = /*#__PURE__*/function (_Component) {
     _this.state = {
       user: logged,
       apiURL: 'http://localhost:8000/api',
+      imageURL: '',
       tenants: [],
+      newProfileImage: "",
       error: null,
       formUser: {
         id: -1,
@@ -2427,6 +2433,7 @@ var Home = /*#__PURE__*/function (_Component) {
     _this.deleteUser = _this.deleteUser.bind(_assertThisInitialized(_this));
     _this.resetUserForm = _this.resetUserForm.bind(_assertThisInitialized(_this));
     _this.loadUserForm = _this.loadUserForm.bind(_assertThisInitialized(_this));
+    _this.handleImageChange = _this.handleImageChange.bind(_assertThisInitialized(_this));
     return _this;
   }
 
@@ -2440,10 +2447,12 @@ var Home = /*#__PURE__*/function (_Component) {
               case 0:
                 if (logged.administrator == 0) {
                   this.setState({
+                    imageURL: "http://localhost:8000/storage/profile_images/".concat(this.state.user.id, "/").concat(this.state.user.profile_image),
                     formUser: {
                       id: this.state.user.id,
                       name: this.state.user.name,
                       email: this.state.user.email,
+                      profile_image: this.state.user.profile_image,
                       password: ''
                     }
                   });
@@ -2599,51 +2608,42 @@ var Home = /*#__PURE__*/function (_Component) {
     key: "handleTenantSubmit",
     value: function () {
       var _handleTenantSubmit = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4(e) {
-        var config, res, data;
+        var _this2 = this;
+
+        var fData;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
                 e.preventDefault();
-                _context4.prev = 1;
-                config = {
-                  method: 'PUT',
-                  headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify(this.state.formUser)
-                };
-                _context4.next = 5;
-                return fetch("".concat(this.state.apiURL, "/tenants/").concat(this.state.formUser.id), config);
+                fData = new FormData();
 
-              case 5:
-                res = _context4.sent;
-                _context4.next = 8;
-                return res.json();
+                if (this.state.newProfileImage != "") {
+                  fData.append('image', this.state.newProfileImage);
+                }
 
-              case 8:
-                data = _context4.sent;
-                this.setState({
-                  user: data
+                fData.append('user', JSON.stringify(this.state.formUser));
+                axios__WEBPACK_IMPORTED_MODULE_3___default().post("".concat(this.state.apiURL, "/tenants-profiles"), fData).then(function (res) {
+                  var data = res['data'];
+
+                  _this2.setState({
+                    user: data
+                  });
+
+                  _this2.resetUserForm();
+                })["catch"](function (e) {
+                  _this2.setState({
+                    error: e
+                  });
                 });
                 this.resetUserForm();
-                _context4.next = 16;
-                break;
 
-              case 13:
-                _context4.prev = 13;
-                _context4.t0 = _context4["catch"](1);
-                this.setState({
-                  error: _context4.t0
-                });
-
-              case 16:
+              case 6:
               case "end":
                 return _context4.stop();
             }
           }
-        }, _callee4, this, [[1, 13]]);
+        }, _callee4, this);
       }));
 
       function handleTenantSubmit(_x2) {
@@ -2711,10 +2711,13 @@ var Home = /*#__PURE__*/function (_Component) {
     value: function resetUserForm() {
       if (logged.administrator == 0) {
         this.setState({
+          newProfileImage: "",
+          imageURL: "http://localhost:8000/storage/profile_images/".concat(this.state.user.id, "/").concat(this.state.user.profile_image),
           formUser: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
+            id: this.state.user.id,
+            name: this.state.user.name,
+            email: this.state.user.email,
+            profile_image: this.state.user.profile_image,
             password: ''
           }
         });
@@ -2742,17 +2745,24 @@ var Home = /*#__PURE__*/function (_Component) {
       });
     }
   }, {
+    key: "handleImageChange",
+    value: function handleImageChange(files) {
+      this.setState({
+        newProfileImage: files[0]
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
-      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
         className: "container",
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("div", {
           className: "row justify-content-center",
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
             className: "col-md-8",
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("h1", {
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("h1", {
               children: ["Bienvenido ", logged.name]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("hr", {}), logged.administrator == 1 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Admin__WEBPACK_IMPORTED_MODULE_3__["default"], {
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("hr", {}), logged.administrator == 1 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_Admin__WEBPACK_IMPORTED_MODULE_4__["default"], {
               tenants: this.state.tenants,
               formUser: this.state.formUser,
               onChange: this.handleChange,
@@ -2760,11 +2770,14 @@ var Home = /*#__PURE__*/function (_Component) {
               deleteUser: this.deleteUser,
               resetUserForm: this.resetUserForm,
               loadUserForm: this.loadUserForm
-            }), logged.administrator == 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Tenant__WEBPACK_IMPORTED_MODULE_4__["default"], {
+            }), logged.administrator == 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_Tenant__WEBPACK_IMPORTED_MODULE_5__["default"], {
               user: this.state.user,
+              imageURL: this.state.imageURL,
               formUser: this.state.formUser,
+              newProfileImage: this.state.newProfileImage,
               onChange: this.handleChange,
               onSubmit: this.handleTenantSubmit,
+              onImageChange: this.handleImageChange,
               resetUserForm: this.resetUserForm
             })]
           })
@@ -2779,7 +2792,7 @@ var Home = /*#__PURE__*/function (_Component) {
 
 
 if (document.getElementById('home')) {
-  react_dom__WEBPACK_IMPORTED_MODULE_2__.render( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(Home, {}), document.getElementById('home'));
+  react_dom__WEBPACK_IMPORTED_MODULE_2__.render( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(Home, {}), document.getElementById('home'));
 }
 
 /***/ }),
@@ -2804,9 +2817,12 @@ __webpack_require__.r(__webpack_exports__);
 var Tenant = function Tenant(_ref) {
   var user = _ref.user,
       formUser = _ref.formUser,
+      newProfileImage = _ref.newProfileImage,
       onChange = _ref.onChange,
       onSubmit = _ref.onSubmit,
-      resetUserForm = _ref.resetUserForm;
+      onImageChange = _ref.onImageChange,
+      resetUserForm = _ref.resetUserForm,
+      imageURL = _ref.imageURL;
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
     children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("form", {
       onSubmit: onSubmit,
@@ -2815,9 +2831,46 @@ var Tenant = function Tenant(_ref) {
           'border': 'solid 2px #ddd',
           'borderRadius': '10px',
           'padding': '10px',
-          'marginBottom': '10px'
+          'marginBottom': '10px',
+          'textAlign': 'center'
         },
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+        children: [user.profile_image == "" && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("img", {
+          style: {
+            'border': 'solid 3px #ddd',
+            'borderRadius': '50%',
+            'margin': '30px',
+            'height': '200px',
+            'width': '200px'
+          },
+          src: "https://media.istockphoto.com/vectors/male-face-silhouette-or-icon-man-avatar-profile-unknown-or-anonymous-vector-id1087531642?k=20&m=1087531642&s=170667a&w=0&h=ge3fq1Dw0-J2FoW96c8klSiHyOnitVhReUUuIIYqtvw="
+        }), user.profile_image != "" && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("img", {
+          style: {
+            'border': 'solid 3px #ddd',
+            'borderRadius': '50%',
+            'margin': '30px',
+            'height': '200px',
+            'width': '200px'
+          },
+          src: imageURL
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          className: "input-group mb-3",
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+            className: "input-group-prepend",
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
+              className: "input-group-text",
+              id: "basic-addon1",
+              children: "\uD83D\uDCF8"
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("input", {
+            type: "file",
+            className: "form-control",
+            placeholder: "Nombre",
+            name: "profile_image",
+            onChange: function onChange(e) {
+              return onImageChange(e.target.files);
+            }
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
           className: "input-group mb-3",
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
             className: "input-group-prepend",
@@ -2851,7 +2904,7 @@ var Tenant = function Tenant(_ref) {
             value: formUser.email,
             onChange: onChange
           })]
-        }), (user.name != formUser.name || user.email != formUser.email) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+        }), (user.name != formUser.name || user.email != formUser.email || newProfileImage != "") && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
           type: "submit",
           className: "btn btn-primary",
           children: "GUARDAR CAMBIOS"

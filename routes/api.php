@@ -18,8 +18,11 @@ use App\Models\User;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+//TENANTS CRUD
 Route::get('/tenants', [App\Http\Controllers\UserController::class, 'index']);
 Route::post('/tenants', [App\Http\Controllers\UserController::class, 'store']);
 Route::put('/tenants/{tenant}', [App\Http\Controllers\UserController::class, 'update']);
 Route::delete('/tenants/{tenant}', [App\Http\Controllers\UserController::class, 'destroy']);
+//TENANT PROFILE UPDATE
+Route::post('/tenants-profiles', [App\Http\Controllers\UserController::class, 'updateProfile']);
 

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 
 
@@ -97,5 +99,30 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required'
         ]);
+    }
+    public function updateProfile(Request $request)
+    {
+        try {
+            $reqUser=json_decode($request->user);
+            $user = User::findOrFail($reqUser->id);
+            if($request->hasFile('image')){
+                $file=$request->file('image');
+                $filename=$file->getClientOriginalName();
+                if(File::exists(public_path('storage/profile_images/'.$reqUser->id))) {
+                    File::deleteDirectory(public_path('storage/profile_images/'.$reqUser->id));
+                }
+                $file->storeAs('profile_images/'.$reqUser->id.'/', $filename, 'public');
+                $user->profile_image=$filename;
+            }
+            $user->name=$reqUser->name;
+            $user->email=$reqUser->email;
+            if($reqUser->password !=''){
+                $user->password=Hash::make($reqUser->password);
+            }
+            $user->update();
+            return $user;
+        } catch (\Throwable $th) {
+            return $th->getMessage();
+        }
     }
 }

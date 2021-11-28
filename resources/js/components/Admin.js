@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Admin = ({ tenants, formUser, onChange, onSubmit, deleteUser, resetUserForm, loadUserForm }) => {
+const Admin = ({ tenants, formUser, onChange, onSubmit, deleteUser, resetUserForm, loadUserForm, imageURL }) => {
     const [showForm, setShowForm] = useState(false);
     const switchForm = () => { setShowForm(!showForm) }
     const resetForm = () => {

@@ -1,5 +1,6 @@
 import React, { Component, useState } from 'react';
 import ReactDOM from 'react-dom';
+import Axios from 'axios';
 import Admin from './Admin';
 import Tenant from './Tenant';
 
@@ -9,7 +10,9 @@ export default class Home extends Component {
         this.state = {
             user: logged,
             apiURL: 'http://localhost:8000/api',
+            imageURL: '',
             tenants: [],
+            newProfileImage: "",
             error: null,
             formUser: { id: -1, name: '', email: '', password: '' }
         }
@@ -20,12 +23,20 @@ export default class Home extends Component {
         this.deleteUser = this.deleteUser.bind(this);
         this.resetUserForm = this.resetUserForm.bind(this);
         this.loadUserForm = this.loadUserForm.bind(this);
+        this.handleImageChange = this.handleImageChange.bind(this);
     }
 
     async componentDidMount() {
         if (logged.administrator == 0) {
             this.setState({
-                formUser: { id: this.state.user.id, name: this.state.user.name, email: this.state.user.email, password: '' }
+                imageURL: `http://localhost:8000/storage/profile_images/${this.state.user.id}/${this.state.user.profile_image}`,
+                formUser: {
+                    id: this.state.user.id,
+                    name: this.state.user.name,
+                    email: this.state.user.email,
+                    profile_image: this.state.user.profile_image,
+                    password: ''
+                }
             });
         }
         this.loadTenants();
@@ -81,29 +92,28 @@ export default class Home extends Component {
             })
         }
     }
+
     async handleTenantSubmit(e) {
         e.preventDefault();
-        try {
-            let config = {
-                method: 'PUT',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(this.state.formUser)
-            }
-            let res = await fetch(`${this.state.apiURL}/tenants/${this.state.formUser.id}`, config);
-            let data = await res.json();
+        const fData = new FormData();
+        if (this.state.newProfileImage != "") {
+            fData.append('image', this.state.newProfileImage);
+        }
+        fData.append('user', JSON.stringify(this.state.formUser));
+        Axios.post(`${this.state.apiURL}/tenants-profiles`, fData).then(res => {
+            let data = res['data'];
             this.setState({
                 user: data
-            })
+            });
             this.resetUserForm();
-        } catch (error) {
+        }).catch(e => {
             this.setState({
-                error: error
+                error: e
             })
-        }
+        });
+        this.resetUserForm();
     }
+
     async deleteUser(id) {
         try {
             let config = {
@@ -123,7 +133,17 @@ export default class Home extends Component {
     }
     resetUserForm() {
         if (logged.administrator == 0) {
-            this.setState({ formUser: { id: user.id, name: user.name, email: user.email, password: '' } });
+            this.setState({
+                newProfileImage: "",
+                imageURL: `http://localhost:8000/storage/profile_images/${this.state.user.id}/${this.state.user.profile_image}`,
+                formUser: {
+                    id: this.state.user.id,
+                    name: this.state.user.name,
+                    email: this.state.user.email,
+                    profile_image: this.state.user.profile_image,
+                    password: ''
+                }
+            });
         } else {
             this.setState({ formUser: { id: -1, name: '', email: '', password: '' } });
         }
@@ -131,6 +151,12 @@ export default class Home extends Component {
     loadUserForm(user) {
         this.setState({ formUser: { id: user.id, name: user.name, email: user.email, password: '' } });
     }
+    handleImageChange(files) {
+        this.setState({
+            newProfileImage: files[0]
+        });
+    }
+
 
     render() {
         return (
@@ -153,9 +179,12 @@ export default class Home extends Component {
                         {logged.administrator == 0 &&
                             <Tenant
                                 user={this.state.user}
+                                imageURL={this.state.imageURL}
                                 formUser={this.state.formUser}
+                                newProfileImage={this.state.newProfileImage}
                                 onChange={this.handleChange}
                                 onSubmit={this.handleTenantSubmit}
+                                onImageChange={this.handleImageChange}
                                 resetUserForm={this.resetUserForm}
                             />
                         }
