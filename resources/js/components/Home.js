@@ -1,12 +1,13 @@
 import React, { Component, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Admin from './Admin';
+import Tenant from './Tenant';
 
 export default class Home extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            user: {},
+            user: logged,
             apiURL: 'http://localhost:8000/api',
             tenants: [],
             error: null,
@@ -15,12 +16,18 @@ export default class Home extends Component {
         this.loadTenants = this.loadTenants.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleTenantSubmit = this.handleTenantSubmit.bind(this);
         this.deleteUser = this.deleteUser.bind(this);
         this.resetUserForm = this.resetUserForm.bind(this);
         this.loadUserForm = this.loadUserForm.bind(this);
     }
 
     async componentDidMount() {
+        if (logged.administrator == 0) {
+            this.setState({
+                formUser: { id: this.state.user.id, name: this.state.user.name, email: this.state.user.email, password: '' }
+            });
+        }
         this.loadTenants();
     }
     async loadTenants() {
@@ -74,6 +81,29 @@ export default class Home extends Component {
             })
         }
     }
+    async handleTenantSubmit(e) {
+        e.preventDefault();
+        try {
+            let config = {
+                method: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.state.formUser)
+            }
+            let res = await fetch(`${this.state.apiURL}/tenants/${this.state.formUser.id}`, config);
+            let data = await res.json();
+            this.setState({
+                user: data
+            })
+            this.resetUserForm();
+        } catch (error) {
+            this.setState({
+                error: error
+            })
+        }
+    }
     async deleteUser(id) {
         try {
             let config = {
@@ -92,7 +122,11 @@ export default class Home extends Component {
         }
     }
     resetUserForm() {
-        this.setState({ formUser: { id: -1, name: '', email: '', password: '' } });
+        if (logged.administrator == 0) {
+            this.setState({ formUser: { id: user.id, name: user.name, email: user.email, password: '' } });
+        } else {
+            this.setState({ formUser: { id: -1, name: '', email: '', password: '' } });
+        }
     }
     loadUserForm(user) {
         this.setState({ formUser: { id: user.id, name: user.name, email: user.email, password: '' } });
@@ -114,6 +148,15 @@ export default class Home extends Component {
                                 deleteUser={this.deleteUser}
                                 resetUserForm={this.resetUserForm}
                                 loadUserForm={this.loadUserForm}
+                            />
+                        }
+                        {logged.administrator == 0 &&
+                            <Tenant
+                                user={this.state.user}
+                                formUser={this.state.formUser}
+                                onChange={this.handleChange}
+                                onSubmit={this.handleTenantSubmit}
+                                resetUserForm={this.resetUserForm}
                             />
                         }
 

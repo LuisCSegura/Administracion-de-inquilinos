@@ -2354,7 +2354,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
 /* harmony import */ var _Admin__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Admin */ "./resources/js/components/Admin.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _Tenant__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tenant */ "./resources/js/components/Tenant.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
@@ -2395,6 +2396,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 
 
+
 var Home = /*#__PURE__*/function (_Component) {
   _inherits(Home, _Component);
 
@@ -2407,7 +2409,7 @@ var Home = /*#__PURE__*/function (_Component) {
 
     _this = _super.call(this, props);
     _this.state = {
-      user: {},
+      user: logged,
       apiURL: 'http://localhost:8000/api',
       tenants: [],
       error: null,
@@ -2421,6 +2423,7 @@ var Home = /*#__PURE__*/function (_Component) {
     _this.loadTenants = _this.loadTenants.bind(_assertThisInitialized(_this));
     _this.handleChange = _this.handleChange.bind(_assertThisInitialized(_this));
     _this.handleSubmit = _this.handleSubmit.bind(_assertThisInitialized(_this));
+    _this.handleTenantSubmit = _this.handleTenantSubmit.bind(_assertThisInitialized(_this));
     _this.deleteUser = _this.deleteUser.bind(_assertThisInitialized(_this));
     _this.resetUserForm = _this.resetUserForm.bind(_assertThisInitialized(_this));
     _this.loadUserForm = _this.loadUserForm.bind(_assertThisInitialized(_this));
@@ -2435,9 +2438,20 @@ var Home = /*#__PURE__*/function (_Component) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
+                if (logged.administrator == 0) {
+                  this.setState({
+                    formUser: {
+                      id: this.state.user.id,
+                      name: this.state.user.name,
+                      email: this.state.user.email,
+                      password: ''
+                    }
+                  });
+                }
+
                 this.loadTenants();
 
-              case 1:
+              case 2:
               case "end":
                 return _context.stop();
             }
@@ -2582,41 +2596,44 @@ var Home = /*#__PURE__*/function (_Component) {
       return handleSubmit;
     }()
   }, {
-    key: "deleteUser",
+    key: "handleTenantSubmit",
     value: function () {
-      var _deleteUser = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4(id) {
+      var _handleTenantSubmit = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4(e) {
         var config, res, data;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                _context4.prev = 0;
+                e.preventDefault();
+                _context4.prev = 1;
                 config = {
-                  method: 'DELETE'
+                  method: 'PUT',
+                  headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(this.state.formUser)
                 };
-                _context4.next = 4;
-                return fetch("".concat(this.state.apiURL, "/tenants/").concat(id), config);
+                _context4.next = 5;
+                return fetch("".concat(this.state.apiURL, "/tenants/").concat(this.state.formUser.id), config);
 
-              case 4:
-                _context4.next = 6;
-                return fetch("".concat(this.state.apiURL, "/tenants"));
-
-              case 6:
+              case 5:
                 res = _context4.sent;
-                _context4.next = 9;
+                _context4.next = 8;
                 return res.json();
 
-              case 9:
+              case 8:
                 data = _context4.sent;
                 this.setState({
-                  tenants: data
+                  user: data
                 });
+                this.resetUserForm();
                 _context4.next = 16;
                 break;
 
               case 13:
                 _context4.prev = 13;
-                _context4.t0 = _context4["catch"](0);
+                _context4.t0 = _context4["catch"](1);
                 this.setState({
                   error: _context4.t0
                 });
@@ -2626,10 +2643,64 @@ var Home = /*#__PURE__*/function (_Component) {
                 return _context4.stop();
             }
           }
-        }, _callee4, this, [[0, 13]]);
+        }, _callee4, this, [[1, 13]]);
       }));
 
-      function deleteUser(_x2) {
+      function handleTenantSubmit(_x2) {
+        return _handleTenantSubmit.apply(this, arguments);
+      }
+
+      return handleTenantSubmit;
+    }()
+  }, {
+    key: "deleteUser",
+    value: function () {
+      var _deleteUser = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee5(id) {
+        var config, res, data;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _context5.prev = 0;
+                config = {
+                  method: 'DELETE'
+                };
+                _context5.next = 4;
+                return fetch("".concat(this.state.apiURL, "/tenants/").concat(id), config);
+
+              case 4:
+                _context5.next = 6;
+                return fetch("".concat(this.state.apiURL, "/tenants"));
+
+              case 6:
+                res = _context5.sent;
+                _context5.next = 9;
+                return res.json();
+
+              case 9:
+                data = _context5.sent;
+                this.setState({
+                  tenants: data
+                });
+                _context5.next = 16;
+                break;
+
+              case 13:
+                _context5.prev = 13;
+                _context5.t0 = _context5["catch"](0);
+                this.setState({
+                  error: _context5.t0
+                });
+
+              case 16:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this, [[0, 13]]);
+      }));
+
+      function deleteUser(_x3) {
         return _deleteUser.apply(this, arguments);
       }
 
@@ -2638,14 +2709,25 @@ var Home = /*#__PURE__*/function (_Component) {
   }, {
     key: "resetUserForm",
     value: function resetUserForm() {
-      this.setState({
-        formUser: {
-          id: -1,
-          name: '',
-          email: '',
-          password: ''
-        }
-      });
+      if (logged.administrator == 0) {
+        this.setState({
+          formUser: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            password: ''
+          }
+        });
+      } else {
+        this.setState({
+          formUser: {
+            id: -1,
+            name: '',
+            email: '',
+            password: ''
+          }
+        });
+      }
     }
   }, {
     key: "loadUserForm",
@@ -2662,15 +2744,15 @@ var Home = /*#__PURE__*/function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
         className: "container",
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("div", {
           className: "row justify-content-center",
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
             className: "col-md-8",
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("h1", {
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("h1", {
               children: ["Bienvenido ", logged.name]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("hr", {}), logged.administrator == 1 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_Admin__WEBPACK_IMPORTED_MODULE_3__["default"], {
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("hr", {}), logged.administrator == 1 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Admin__WEBPACK_IMPORTED_MODULE_3__["default"], {
               tenants: this.state.tenants,
               formUser: this.state.formUser,
               onChange: this.handleChange,
@@ -2678,6 +2760,12 @@ var Home = /*#__PURE__*/function (_Component) {
               deleteUser: this.deleteUser,
               resetUserForm: this.resetUserForm,
               loadUserForm: this.loadUserForm
+            }), logged.administrator == 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_Tenant__WEBPACK_IMPORTED_MODULE_4__["default"], {
+              user: this.state.user,
+              formUser: this.state.formUser,
+              onChange: this.handleChange,
+              onSubmit: this.handleTenantSubmit,
+              resetUserForm: this.resetUserForm
             })]
           })
         })
@@ -2691,8 +2779,89 @@ var Home = /*#__PURE__*/function (_Component) {
 
 
 if (document.getElementById('home')) {
-  react_dom__WEBPACK_IMPORTED_MODULE_2__.render( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(Home, {}), document.getElementById('home'));
+  react_dom__WEBPACK_IMPORTED_MODULE_2__.render( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(Home, {}), document.getElementById('home'));
 }
+
+/***/ }),
+
+/***/ "./resources/js/components/Tenant.js":
+/*!*******************************************!*\
+  !*** ./resources/js/components/Tenant.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+
+
+
+
+var Tenant = function Tenant(_ref) {
+  var user = _ref.user,
+      formUser = _ref.formUser,
+      onChange = _ref.onChange,
+      onSubmit = _ref.onSubmit,
+      resetUserForm = _ref.resetUserForm;
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("form", {
+      onSubmit: onSubmit,
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+        style: {
+          'border': 'solid 2px #ddd',
+          'borderRadius': '10px',
+          'padding': '10px',
+          'marginBottom': '10px'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          className: "input-group mb-3",
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+            className: "input-group-prepend",
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
+              className: "input-group-text",
+              id: "basic-addon1",
+              children: "\uD83D\uDC64"
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("input", {
+            type: "text",
+            className: "form-control",
+            placeholder: "Nombre",
+            name: "name",
+            value: formUser.name,
+            onChange: onChange
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          className: "input-group mb-3",
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+            className: "input-group-prepend",
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
+              className: "input-group-text",
+              id: "basic-addon1",
+              children: "\uD83D\uDCE7"
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("input", {
+            type: "text",
+            className: "form-control",
+            placeholder: "Email",
+            name: "email",
+            value: formUser.email,
+            onChange: onChange
+          })]
+        }), (user.name != formUser.name || user.email != formUser.email) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+          type: "submit",
+          className: "btn btn-primary",
+          children: "GUARDAR CAMBIOS"
+        })]
+      })
+    })
+  });
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Tenant);
 
 /***/ }),
 
